@@ -6,7 +6,7 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: read
+  contents: write
 
 jobs:
   build:
@@ -44,3 +44,22 @@ jobs:
           path: app/build/outputs/apk/debug/app-debug.apk
           if-no-files-found: error
           retention-days: 14
+
+      - name: Publish latest debug APK release
+        if: github.event_name == 'push' && github.ref == 'refs/heads/master'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          APK_PATH: app/build/outputs/apk/debug/app-debug.apk
+        run: |
+          if gh release view latest-debug > /dev/null 2>&1; then
+            gh release upload latest-debug "$APK_PATH#app-debug.apk" --clobber
+            gh release edit latest-debug \
+              --title "Latest debug APK" \
+              --notes "Automatically built from commit $GITHUB_SHA."
+          else
+            gh release create latest-debug "$APK_PATH#app-debug.apk" \
+              --target "$GITHUB_SHA" \
+              --title "Latest debug APK" \
+              --notes "Automatically built from commit $GITHUB_SHA." \
+              --prerelease
+          fi
