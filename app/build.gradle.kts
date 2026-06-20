@@ -4,7 +4,7 @@ plugins {
 
 val hmacSecret =
     System.getenv("HMAC_SECRET")
-        ?: "development-secret"
+        ?: error("HMAC_SECRET not set")
 
 android {
     namespace = "com.example.zohoandroidautomation"
