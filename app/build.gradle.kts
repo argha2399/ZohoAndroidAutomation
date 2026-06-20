@@ -2,12 +2,20 @@ plugins {
     alias(libs.plugins.android.application)
 }
 
+val hmacSecret =
+    System.getenv("HMAC_SECRET")
+        ?: "development-secret"
+
 android {
     namespace = "com.example.zohoandroidautomation"
     compileSdk {
         version = release(36) {
             minorApiLevel = 1
         }
+    }
+
+    buildFeatures {
+        buildConfig = true
     }
 
     defaultConfig {
@@ -17,7 +25,14 @@ android {
         versionCode = 1
         versionName = "1.0"
 
-        testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+        buildConfigField(
+            "String",
+            "HMAC_SECRET",
+            "\"$hmacSecret\""
+        )
+
+        testInstrumentationRunner =
+            "androidx.test.runner.AndroidJUnitRunner"
     }
 
     buildTypes {
